@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,23 +7,27 @@
     <title>Student Management Portal</title>
     <style>
         * { box-sizing: border-box; }
+
         body {
             margin: 0;
             font-family: Arial, sans-serif;
             background: #f1f5f9;
             color: #1e293b;
         }
+
         header {
             background: #1e3a8a;
             color: white;
             padding: 22px;
             text-align: center;
         }
+
         main {
             max-width: 900px;
             margin: 30px auto;
             padding: 20px;
         }
+
         .card {
             background: white;
             padding: 24px;
@@ -30,42 +35,56 @@
             box-shadow: 0 3px 12px #00000012;
             margin-bottom: 20px;
         }
+
         input, button {
             padding: 12px;
             margin: 5px 0;
             border-radius: 6px;
             font-size: 15px;
         }
+
         input {
             border: 1px solid #cbd5e1;
             width: 100%;
         }
+
         button {
             border: none;
             background: #2563eb;
             color: white;
             cursor: pointer;
         }
+
         button:hover { background: #1d4ed8; }
         .delete { background: #dc2626; }
-        .delete:hover { background: #b91c1c; }
+
         .stats {
             display: flex;
             gap: 15px;
             flex-wrap: wrap;
         }
+
         .stats .card { flex: 1; min-width: 150px; }
+
         .table-wrap { overflow-x: auto; }
+
         table {
             width: 100%;
             border-collapse: collapse;
         }
+
         th, td {
             text-align: left;
             padding: 12px;
             border-bottom: 1px solid #e2e8f0;
         }
+
         th { background: #eff6ff; }
+
+        .notice {
+            color: #475569;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -89,17 +108,27 @@
         <section class="card">
             <h2>Add a Student</h2>
             <form id="studentForm">
-                <input id="name" placeholder="Student name" required>
-                <input id="roll" placeholder="Roll number" required>
-                <input id="course" placeholder="Course name" required>
+                <label for="name">Student name</label>
+                <input id="name" name="name"
+                       placeholder="Enter student name" required>
+
+                <label for="roll">Roll number</label>
+                <input id="roll" name="roll"
+                       placeholder="Enter roll number" required>
+
+                <label for="course">Course name</label>
+                <input id="course" name="course"
+                       placeholder="Enter course name" required>
+
                 <button type="submit">Add Student</button>
             </form>
         </section>
 
         <section class="card">
             <h2>Student Records</h2>
-            <input id="search" placeholder="Search students..."
-                   oninput="renderStudents()">
+            <input id="search" type="search"
+                   placeholder="Search by name, roll number or course">
+
             <div class="table-wrap">
                 <table>
                     <thead>
@@ -113,10 +142,14 @@
                     <tbody id="studentList"></tbody>
                 </table>
             </div>
+
             <p id="empty">No students added yet.</p>
+            <p class="notice">
+                Demo: records are stored in this browser only.
+            </p>
         </section>
     </main>
 
-    <script src="app.js"></script>
+    <script src="./app.js" defer></script>
 </body>
 </html>
