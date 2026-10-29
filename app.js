@@ -1,14 +1,7 @@
+
+"use strict";
+
 const STORAGE_KEY = "student-portal-records";
-
-let students = [];
-
-try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    students = saved ? JSON.parse(saved) : [];
-    if (!Array.isArray(students)) students = [];
-} catch {
-    students = [];
-}
 
 const form = document.getElementById("studentForm");
 const nameInput = document.getElementById("name");
@@ -19,8 +12,25 @@ const studentList = document.getElementById("studentList");
 const totalDisplay = document.getElementById("total");
 const emptyMessage = document.getElementById("empty");
 
+let students = [];
+
+try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    const parsed = saved ? JSON.parse(saved) : [];
+    students = Array.isArray(parsed) ? parsed : [];
+} catch (error) {
+    console.error("Could not load saved students:", error);
+}
+
 function saveStudents() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(students));
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(students));
+        return true;
+    } catch (error) {
+        alert("Could not save data in this browser.");
+        console.error(error);
+        return false;
+    }
 }
 
 function safeText(value) {
@@ -37,9 +47,8 @@ function renderStudents() {
     const query = searchInput.value.trim().toLowerCase();
 
     const filtered = students.filter(student =>
-        student.name.toLowerCase().includes(query) ||
-        student.roll.toLowerCase().includes(query) ||
-        student.course.toLowerCase().includes(query)
+        [student.name, student.roll, student.course]
+            .some(value => String(value || "").toLowerCase().includes(query))
     );
 
     studentList.innerHTML = filtered.map(student => `
@@ -48,8 +57,8 @@ function renderStudents() {
             <td>${safeText(student.roll)}</td>
             <td>${safeText(student.course)}</td>
             <td>
-                <button class="delete"
-                    onclick="deleteStudent('${student.id}')">
+                <button type="button" class="delete"
+                    data-delete-id="${safeText(student.id)}">
                     Delete
                 </button>
             </td>
@@ -75,30 +84,49 @@ form.addEventListener("submit", function(event) {
         return;
     }
 
-    if (students.some(student =>
-        student.roll.toLowerCase() === roll.toLowerCase()
-    )) {
+    const duplicate = students.some(student =>
+        String(student.roll).toLowerCase() === roll.toLowerCase()
+    );
+
+    if (duplicate) {
         alert("This roll number already exists.");
         return;
     }
 
-    students.push({
-        id: String(Date.now()) + Math.random().toString(16).slice(2),
+    const newStudent = {
+        id: Date.now().toString() + Math.random().toString(16).slice(2),
         name,
         roll,
         course
-    });
+    };
 
-    saveStudents();
+    students.push(newStudent);
+
+    if (!saveStudents()) {
+        students.pop();
+        return;
+    }
+
     form.reset();
+    searchInput.value = "";
     renderStudents();
 });
 
-function deleteStudent(id) {
+studentList.addEventListener("click", function(event) {
+    const button = event.target.closest("[data-delete-id]");
+    if (!button) return;
+
+    const id = button.dataset.deleteId;
+    const previous = students;
     students = students.filter(student => student.id !== id);
-    saveStudents();
+
+    if (!saveStudents()) {
+        students = previous;
+        return;
+    }
+
     renderStudents();
-}
+});
 
 searchInput.addEventListener("input", renderStudents);
 
